@@ -1,27 +1,30 @@
-# Используем официальный легковесный образ Python
 FROM python:3.10-slim
 
-# Устанавливаем переменные окружения
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
-# Устанавливаем системные зависимости для psycopg2 и cron
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpq-dev \
-    cron \
-    && apt-get clean
-
-# Устанавливаем рабочую директорию в контейнере
 WORKDIR /app
 
-# Копируем файл с зависимостями и устанавливаем их
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Системные пакеты для сборки psycopg2 и работы cron
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libpq-dev \
+    postgresql-client \
+    cron \
+    && rm -rf /var/lib/apt/lists/*
 
-# Копируем весь код проекта в рабочую директорию
-COPY . .
+# Установка Python-зависимостей отдельным слоем для кэширования при пересборках
+COPY requirements.txt /app/
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Собираем статические файлы. Nginx будет их раздавать.
-RUN python manage.py collectstatic --noinput
+# Копирование кода проекта внутрь образа
+COPY . /app/
 
+# Подготовка каталога статики и прав на скрипт cron
+RUN mkdir -p /app/staticfiles && \
+    if [ -f /app/entrypoint.cron.sh ]; then chmod +x /app/entrypoint.cron.sh; fi
+
+EXPOSE 8000
+
+CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
