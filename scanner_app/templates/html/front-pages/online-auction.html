@@ -1,0 +1,638 @@
+<!doctype html>
+{% load static %}
+<html
+  lang="en"
+  class="light-style layout-wide"
+  dir="ltr"
+  data-theme="theme-default"
+  data-assets-path="{{ STATIC_URL }}"
+  data-template="front-pages">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+
+    <title>Онлайн Аукцион</title>
+
+    <meta name="description" content="" />
+
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon/favicon.ico' %}" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&ampdisplay=swap"
+      rel="stylesheet" />
+
+    <link rel="stylesheet" href="{% static 'vendor/fonts/tabler-icons.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'vendor/css/rtl/core.css' %}" class="template-customizer-core-css" />
+    <link rel="stylesheet" href="{% static 'vendor/css/rtl/theme-default.css' %}" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="{% static 'css/demo.css' %}" />
+    <link rel="stylesheet" href="{% static 'vendor/libs/node-waves/node-waves.css' %}" />
+    <link rel="stylesheet" href="{% static 'vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}" />
+    <link rel="stylesheet" href="{% static 'vendor/libs/typeahead-js/typeahead.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'vendor/libs/nouislider/nouislider.css' %}" />
+    <link rel="stylesheet" href="{% static 'vendor/libs/swiper/swiper.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'vendor/css/pages/front-page-landing.css' %}" />
+    <link rel="stylesheet" href="{% static 'vendor/css/pages/front-page-auction.css' %}" />
+
+    <script src="{% static 'vendor/js/helpers.js' %}"></script>
+    <script src="{% static 'vendor/js/template-customizer.js' %}"></script>
+    <script src="{% static 'js/config.js' %}"></script>
+
+    <link href="{% static 'vendor/libs/select2/select2.css' %}" rel="stylesheet" />
+
+    <style>
+      #cookieConsentBanner {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #333;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        display: none; /* Hidden by default */
+        text-align: center;
+        max-width: 90%;
+      }
+      #cookieConsentBanner button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-left: 15px;
+      }
+      #cookieConsentBanner button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+
+  <body>
+    <nav class="layout-navbar shadow-none py-0">
+      <div class="container">
+        <div class="navbar navbar-expand-lg landing-navbar px-3 px-md-4">
+          <div class="navbar-brand app-brand demo d-flex py-0 me-4">
+            <a href="/" class="app-brand-link">
+              {% comment %}
+              <span class="app-brand-logo demo">
+                <img src="{% static 'img/branding/plant-logo.png" alt="Plant Logo" width="35" />
+              </span>
+              {% endcomment %}
+              <span class="app-brand-text demo menu-text fw-bold ms-2 pe-3">Онлайн Аукцион</span>
+            </a>
+          </div>
+          <div class="navbar-collapse collapse" id="navbarSupportedContent">
+            <div class="navbar-nav me-auto">
+              <a class="nav-link" href="{% url 'index' %}">Главная</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <div class="container-xxl mt-4">
+      <div class="row">
+        <div class="col-md-3">
+          <div class="card mb-4">
+            <div class="card-header">Фильтры</div>
+            <div class="card-body">
+              <form action="{% url 'index' %}" method="GET">
+                <input type="hidden" name="form_submitted" value="1">
+                <div class="mb-3">
+                  <label for="title" class="form-label">Название/Описание</label>
+                  <input type="text" class="form-control" id="title" name="title" value="{{ title }}" />
+                </div>
+                <div class="mb-3">
+                  <label for="category" class="form-label">Категория</label>
+                  <select class="form-select" id="category" name="category">
+                    <option value="0">Все</option>
+                    {% for category in categories %}
+                      <option value="{{ category.id }}" {% if category.id == category_id %}selected{% endif %}>
+                        {{ category.name_ru }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="status" class="form-label">Статус</label>
+                  <select class="form-select" id="status" name="status">
+                    {# <option value="0">Все</option> #}
+                    {% for status in statuses %}
+                      <option value="{{ status.id }}" {% if status.id == status_id %}selected{% endif %}>
+                        {{ status.name_ru }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="date_from" class="form-label">Дата начала (от)</label>
+                  <input type="date" class="form-control" id="date_from" name="date_from" value="{{ date_from }}" />
+                </div>
+                <div class="mb-3">
+                  <label for="date_to" class="form-label">Дата начала (до)</label>
+                  <input type="date" class="form-control" id="date_to" name="date_to" value="{{ date_to }}" />
+                </div>
+                <div class="mb-3">
+                  <label for="price_from" class="form-label">Цена (от)</label>
+                  <input type="number" class="form-control" id="price_from" name="price_from" value="{{ price_from }}" />
+                </div>
+                <div class="mb-3">
+                  <label for="price_to" class="form-label">Цена (до)</label>
+                  <input type="number" class="form-control" id="price_to" name="price_to" value="{{ price_to }}" />
+                </div>
+                
+                <div class="mb-3">
+                    <label for="region-select" class="form-label">Регион</label>
+                    <select class="form-select select2" id="region-select" name="region" multiple="multiple">
+                        <option value="" {% if not selected_regions %}selected{% endif %}>Все регины</option>
+                        {% for region in regions %}
+                            <option value="{{ region.id }}" {% if region.id|stringformat:"s" in selected_regions %}selected{% endif %}>
+                                {{ region.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <small class="form-text text-muted">
+                        <a href="#" class="reset-filter-link" data-filter-name="region">Сбросить выбор</a>
+                    </small>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="city-select" class="form-label">Город</label>
+                    <select class="form-select select2" id="city-select" name="city" multiple="multiple">
+                        <option value="" {% if not selected_cities %}selected{% endif %}">Все города</option>
+                        {% for city in cities %}
+                            <option value="{{ city.id }}" {% if city.id|stringformat:"s" in selected_cities %}selected{% endif %}>
+                                {{ city.name }} ({{ city.region.name }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <small class="form-text text-muted">
+                        <a href="#" class="reset-filter-link" data-filter-name="city">Сбросить выбор</a>
+                    </small>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="district-select" class="form-label">Район</label>
+                    <select class="form-select select2" id="district-select" name="district" multiple="multiple">
+                        <option value="" {% if not selected_districts %}selected{% endif %}">Все районы</option>
+                        {% for district in districts %}
+                            <option value="{{ district.id }}" {% if district.id|stringformat:"s" in selected_districts %}selected{% endif %}>
+                                {{ district }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <small class="form-text text-muted">
+                        <a href="#" class="reset-filter-link" data-filter-name="district">Сбросить выбор</a>
+                    </small>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="repeat_auction" class="form-label">Тип аукциона</label>
+                    <select class="form-select" id="repeat_auction" name="repeat_auction">
+                        <option value="all" {% if repeat_auction == "all" %}selected{% endif %}>Все аукционы</option>
+                        <option value="yes" {% if repeat_auction == "yes" %}selected{% endif %}>Только повторные</option>
+                        <option value="no" {% if repeat_auction == "no" %}selected{% endif %}>Только первичные</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="sort_by" class="form-label">Сортировать по</label>
+                  <select class="form-select" id="sort_by" name="sort_by">
+                    <option value="announcement_date" {% if sort_by == "announcement_date" %}selected{% endif %}>Дате публикации</option>
+                    <option value="price" {% if sort_by == "price" %}selected{% endif %}>Цене</option>
+                    <option value="title" {% if sort_by == "title" %}selected{% endif %}>Названию</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="sort_direction" class="form-label">Направление сортировки</label>
+                  <select class="form-select" id="sort_direction" name="sort_direction">
+                    <option value="desc" {% if sort_direction == "desc" %}selected{% endif %}>По убыванию</option>
+                    <option value="asc" {% if sort_direction == "asc" %}selected{% endif %}>По возрастанию</option>
+                  </select>
+                </div>
+                <center>
+                    <button type="submit" class="btn btn-primary mt-2">Применить фильтры</button>
+                </center>
+                <center>
+                    <a href="{% url 'index' %}" class="btn btn-outline-secondary mt-2" id="reset-all-filters">Сбросить все фильтры</a>
+                </center>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-9">
+          <div class="d-flex justify-content-end mb-3">
+            <div class="dropdown">
+              <button
+                class="btn btn-secondary dropdown-toggle"
+                type="button"
+                id="currencyDropdown"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Валюта: {{ current_currency }}
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="currencyDropdown">
+                {% for rate in rates %}
+                  <li>
+                    <a class="dropdown-item {% if current_currency == rate.currency %}active{% endif %}"
+                       href="?currency={{ rate.currency }}"> <i class="flag-icon flag-icon-{{ rate.flag }} me-2 rounded-2"></i>{{ rate.currency }}
+                    </a>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+
+          <div id="pagination-container-top">
+              {% include 'html/includes/pagination.html' %}
+          </div>
+
+          <div class="row" id="lots-container">
+              {% include 'html/partials/_lot_list_partial.html' with page_obj=page_obj.object_list %}
+          </div>
+          
+          <div id="loading-spinner" class="text-center my-4" style="display: none;">
+              <div class="spinner-border" role="status">
+                  <span class="visually-hidden">Загрузка...</span>
+              </div>
+          </div>
+
+          <div id="pagination-container-bottom">
+              {% include 'html/includes/pagination.html' %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="cookieConsentBanner">
+      <p>Этот сайт использует файлы cookie для улучшения пользовательского опыта. Продолжая использовать сайт, вы соглашаетесь с нашей политикой использования файлов cookie.</p>
+      <button id="acceptCookies">Понятно!</button>
+    </div>
+
+    <script src="{% static 'vendor/libs/jquery/jquery.js' %}"></script>
+    <script src="{% static 'vendor/libs/select2/select2.js' %}"></script>
+
+    <script src="{% static 'vendor/libs/popper/popper.js' %}"></script>
+    <script src="{% static 'vendor/js/bootstrap.js' %}"></script>
+    
+    <script src="{% static 'vendor/libs/node-waves/node-waves.js' %}"></script>
+    <script src="{% static 'vendor/libs/perfect-scrollbar/perfect-scrollbar.js' %}"></script>
+    <script src="{% static 'vendor/libs/hammer/hammer.js' %}"></script>
+    <script src="{% static 'vendor/libs/typeahead-js/typeahead.js' %}"></script>
+    <script src="{% static 'vendor/js/menu.js' %}"></script>
+
+    <script src="{% static 'vendor/libs/nouislider/nouislider.js' %}"></script>
+    <script src="{% static 'vendor/libs/swiper/swiper.js' %}"></script>
+
+    <script src="{% static 'js/main.js' %}"></script>
+
+    {# Удаляем этот скрипт, поскольку он вызывает ошибку TypeError #}
+    {# <script src="{% static 'js/front-page-landing.js' %}"></script> #}
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Находим родительский контейнер для всех лотов
+        const lotsContainer = document.getElementById('lots-container');
+    
+        // Вешаем один умный обработчик на весь контейнер
+        lotsContainer.addEventListener('click', function(event) {
+            // Проверяем, был ли клик именно по кнопке, которая нам нужна
+            if (event.target.classList.contains('toggle-lot-details')) {
+                event.preventDefault(); // Отменяем стандартное поведение ссылки
+    
+                const button = event.target; // Наша кнопка
+                
+                // Находим родительскую карточку, чтобы работать только в ее пределах
+                const cardBody = button.closest('.card-body');
+                if (!cardBody) return;
+    
+                // Находим скрытый блок внутри этой карточки
+                const hiddenDetails = cardBody.querySelector('.lot-details-hidden');
+                if (!hiddenDetails) return;
+    
+                const showText = button.getAttribute('data-show-text');
+                const hideText = button.getAttribute('data-hide-text');
+    
+                // Переключаем видимость и текст на кнопке
+                if (hiddenDetails.style.display === 'none' || hiddenDetails.style.display === '') {
+                    hiddenDetails.style.display = 'block';
+                    button.textContent = hideText;
+                } else {
+                    hiddenDetails.style.display = 'none';
+                    button.textContent = showText;
+                }
+            }
+        });
+    });
+    </script>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const cookieBanner = document.getElementById('cookieConsentBanner');
+        const acceptButton = document.getElementById('acceptCookies');
+
+        // Function to set a cookie
+        function setCookie(name, value, days) {
+          let expires = '';
+          if (days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = '; expires=' + date.toUTCString();
+          }
+          document.cookie = name + '=' + (value || '') + expires + '; path=/';
+        }
+
+        // Function to get a cookie
+        function getCookie(name) {
+          const nameEQ = name + '=';
+          const ca = document.cookie.split(';');
+          for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+          }
+          return null;
+        }
+
+        // Check if the cookie has been accepted
+        if (!getCookie('cookies_accepted')) {
+          cookieBanner.style.display = 'block';
+        }
+
+        // Event listener for the "Got it!" button
+        if (acceptButton) {
+          acceptButton.addEventListener('click', function() {
+            setCookie('cookies_accepted', 'true', 365); // Set cookie for 1 year
+            cookieBanner.style.display = 'none';
+          });
+        }
+      });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Находим главный контейнер, в котором появляются все лоты
+            const lotsContainer = document.getElementById('lots-container');
+        
+            // Вешаем один "умный" обработчик событий на весь контейнер
+            lotsContainer.addEventListener('click', function(event) {
+                // Проверяем, был ли клик по навигационной ссылке для картинки
+                const navLink = event.target.closest('.lot-nav-link');
+        
+                // Если клик был не по такой ссылке, ничего не делаем
+                if (!navLink) {
+                    return;
+                }
+        
+                // Если это нужная ссылка, начинаем работать
+                event.preventDefault();
+        
+                const selectedImageId = navLink.getAttribute('data-image-id');
+                // Находим родительскую карточку лота, чтобы изменения коснулись только ее
+                const lotCard = navLink.closest('.card'); 
+        
+                if (!lotCard) return;
+        
+                // Сначала скрываем все картинки ВНУТРИ ЭТОЙ КОНКРЕТНОЙ КАРТОЧКИ
+                lotCard.querySelectorAll('.lot-image-block').forEach(imageBlock => {
+                    imageBlock.style.display = 'none';
+                });
+        
+                // Затем показываем только ту, на которую кликнули
+                const selectedImageBlock = lotCard.querySelector(`.lot-image-block[data-image-id="${selectedImageId}"]`);
+                if (selectedImageBlock) {
+                    selectedImageBlock.style.display = 'block';
+                }
+        
+                // (Опционально) Управляем подчеркиванием активной ссылки
+                lotCard.querySelectorAll('.lot-nav-link').forEach(link => {
+                    link.style.textDecoration = 'none';
+                });
+                navLink.style.textDecoration = 'underline';
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            // Сначала инициализируем все выпадающие списки
+            $('#category').select2({ width: '100%' });
+            $('#status').select2({ width: '100%' });
+            $('#region-select').select2({ width: '100%', placeholder: 'Выберите регион' });
+            $('#city-select').select2({ width: '100%', placeholder: 'Выберите город' });
+            $('#district-select').select2({ width: '100%', placeholder: 'Выберите район' });
+            
+            // Также применим стиль к простым спискам для единообразия
+            $('#repeat_auction').select2({ width: '100%' });
+            $('#sort_by').select2({ width: '100%' });
+            $('#sort_direction').select2({ width: '100%' });
+            
+            // Устанавливаем значения для сортировки
+            $('#sort_by').val('{{ sort_by }}').trigger('change');
+            $('#sort_direction').val('{{ sort_direction }}').trigger('change');
+        
+            // Теперь ЯВНО УКАЗЫВАЕМ, какое значение должно быть выбрано
+            // .trigger('change') нужен, чтобы select2 обновил свой внешний вид
+        
+            // Для обычных выпадающих списков
+            $('#category').val('{{ category_id }}').trigger('change');
+            $('#status').val('{{ status_id }}').trigger('change');
+        
+            // Для списков с множественным выбором, читаем данные, которые мы передали через json_script
+            const selectedRegions = JSON.parse(document.getElementById('selected-regions-data').textContent);
+            const selectedCities = JSON.parse(document.getElementById('selected-cities-data').textContent);
+            const selectedDistricts = JSON.parse(document.getElementById('selected-districts-data').textContent);
+        
+            $('#region-select').val(selectedRegions).trigger('change');
+            $('#city-select').val(selectedCities).trigger('change');
+            $('#district-select').val(selectedDistricts).trigger('change');
+        });
+    </script>
+    <script>
+        // Этот скрипт должен быть после инициализации Select2
+        // и после загрузки jQuery
+    
+        $(document).ready(function() {
+            $('form').on('submit', function() {
+                var form = $(this);
+                form.find('select[multiple]').each(function() {
+                    var selectElement = $(this);
+                    if (selectElement.val() === null || selectElement.val().length === 0) {
+                        // Просто берем имя поля как есть, без добавления скобок
+                        var name = selectElement.attr('name');
+                        form.append('<input type="hidden" name="' + name + '" value="">');
+                    }
+                });
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.reset-filter-link').forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault(); // Предотвращаем переход по ссылке
+    
+                    const filterToReset = this.dataset.filterName; // Получаем имя фильтра из data-атрибута
+    
+                    // Создаем объект URL для работы с текущими параметрами
+                    const url = new URL(window.location.href);
+                    const params = url.searchParams;
+    
+                    // Удаляем текущие параметры для фильтра, который хотим сбросить
+                    // Это важно, чтобы избежать дублирования или старых значений
+                    params.delete(filterToReset); 
+    
+                    // Добавляем пустой параметр для сбрасываемого фильтра
+                    // Это то, что views.py ожидает для сброса
+                    params.append(filterToReset, ''); 
+                    
+                    // Перенаправляем на новый URL с обновленными параметрами
+                    window.location.href = url.toString();
+                });
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Вспомогательная функция для чтения cookie ---
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        
+            // --- Логика бесконечной прокрутки ---
+            const initialParams = new URLSearchParams(window.location.search);
+            let page = parseInt(initialParams.get('page')) || 1;
+            let isLoading = false;
+            let hasMorePages = {{ page_obj.has_next|yesno:"true,false" }};
+        
+            const lotsContainer = document.getElementById('lots-container');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const paginationTop = document.getElementById('pagination-container-top');
+            const paginationBottom = document.getElementById('pagination-container-bottom');
+        
+            const loadMoreLots = async () => {
+                if (isLoading || !hasMorePages) return;
+        
+                isLoading = true;
+                loadingSpinner.style.display = 'block';
+                page++;
+        
+                const queryParams = new URLSearchParams();
+                queryParams.set('page', page);
+        
+                const filterCookieNames = [
+                    'filter_title', 'filter_category', 'filter_status', 'filter_date_from', 'filter_date_to',
+                    'filter_price_from', 'filter_price_to', 'filter_repeat_auction', 'filter_sort_by', 
+                    'filter_sort_direction', 'filter_currency', 'filter_region', 'filter_city', 'filter_district'
+                ];
+                
+                const listParams = ['region', 'city', 'district'];
+        
+                filterCookieNames.forEach(cookieName => {
+                    const value = getCookie(cookieName);
+                    const paramName = cookieName.replace('filter_', '');
+        
+                    if (value && value !== '""' && value !== '[]' && value !== '0') {
+                        if (listParams.includes(paramName)) {
+                            try {
+                                // ✅ ГЛАВНОЕ ИСПРАВЛЕНИЕ: "Двойная распаковка"
+                                let parsedValue = JSON.parse(value);
+                                // Если после первой распаковки это все еще строка, парсим еще раз
+                                if (typeof parsedValue === 'string') {
+                                    parsedValue = JSON.parse(parsedValue);
+                                }
+        
+                                if (Array.isArray(parsedValue)) {
+                                    parsedValue.forEach(item => {
+                                        if (item) queryParams.append(paramName, item);
+                                    });
+                                }
+                            } catch (e) {
+                                // Игнорируем, если cookie поврежден
+                            }
+                        } else {
+                            queryParams.append(paramName, value);
+                        }
+                    }
+                });
+        
+                try {
+                    const response = await fetch(`/api/load-lots/?${queryParams.toString()}`);
+                    const data = await response.json();
+        
+                    if (data.html.trim() !== '' && !data.html.includes("Нет лотов")) {
+                        lotsContainer.insertAdjacentHTML('beforeend', data.html);
+                    } else {
+                        hasMorePages = false;
+                    }
+        
+                    if (data.pagination_html) {
+                        if (paginationTop) paginationTop.innerHTML = data.pagination_html;
+                        if (paginationBottom) paginationBottom.innerHTML = data.pagination_html;
+                    }
+                    hasMorePages = data.has_next;
+        
+                } catch (error) {
+                    console.error('Ошибка при загрузке лотов:', error);
+                } finally {
+                    isLoading = false;
+                    loadingSpinner.style.display = 'none';
+                }
+            };
+        
+            window.addEventListener('scroll', () => {
+                if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 300) {
+                    loadMoreLots();
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const resetButton = document.getElementById('reset-all-filters');
+        
+            if (resetButton) {
+                resetButton.addEventListener('click', function(event) {
+                    // 1. Получаем все cookie
+                    const cookies = document.cookie.split(";");
+        
+                    // 2. Ищем и удаляем только cookie с нашими фильтрами
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i];
+                        const eqPos = cookie.indexOf("=");
+                        const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+                        // Удаляем, если имя cookie начинается с "filter_"
+                        if (name.trim().startsWith('filter_')) {
+                            document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+                        }
+                    }
+                    
+                    // 3. Переход по ссылке (href="/") произойдет автоматически после этого
+                });
+            }
+        });
+    </script>
+    {{ selected_regions|json_script:"selected-regions-data" }}
+    {{ selected_cities|json_script:"selected-cities-data" }}
+    {{ selected_districts|json_script:"selected-districts-data" }}
+  </body>
+</html>

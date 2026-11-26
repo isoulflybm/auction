@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Онлайн аукцыон</title>
+        <link rel="stylesheet" href="/static/index.css">
+        <script src="/static/index.js"></script>
+    </head>
+    <body>
+        <h2><a href="/">Онлайн аукцыон</a></h2>
+        
+        <table>
+            <th>Категория</th>
+            <th>Статус</th>
+            <th>Поиск</th>
+            <th></th>
+            <form action="/" method="get">
+                <input type="hidden" name="sort" value="{{ sort }}"/>
+                <tr>
+                    <td>
+                        <select name="category">
+                            <option value="0">любая категория</option>
+                            {% for category in categories %}
+                                {% if category.id == category_id %}
+                                    <option value="{{ category.id }}" selected>
+                                {% else %}
+                                    <option value="{{ category.id }}">
+                                {% endif %}
+                                    {{ category.name_ru }} / {{ category.name_kg }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <select name="status">
+                            <option value="0">любой статус</option>
+                            {% for status in statuses %}
+                                {% if status.id == status_id %}
+                                    <option value="{{ status.id }}" selected>
+                                {% else %}
+                                    <option value="{{ status.id }}">
+                                {% endif %}
+                                    {{ status.name_ru }} / {{ status.name_kg }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" name="title" value="{{ title }}" placeholder="Строка поиска"/>
+                    </td>
+                    <td><button type="submit">Искать</button></td>
+                </tr>
+            </form>
+        </table>
+        
+        <table>
+            <tr>
+                <th>
+                    {% if sort == 'lot_id' %}
+                        <a href="?sort=-lot_id&category={{ category_id }}&status={{ status_id }}&title={{ title }}">
+                            ИД
+                        </a>
+                    {% else %}
+                        <a href="?sort=lot_id&category={{ category_id }}&status={{ status_id }}&title={{ title }}">
+                            ИД
+                        </a>
+                    {% endif %}
+                </th>
+                <th>
+                    {% if sort == 'category' %}
+                        <a href="?sort=-category&category={{ category_id }}&status={{ status_id }}&title={{ title }}">
+                            Категория
+                        </a>
+                    {% else %}
+                        <a href="?sort=category&category={{ category_id }}&status={{ status_id }}&title={{ title }}">
+                            Категория
+                        </a>
+                    {% endif %}
+                </th>
+                <th>
+                    {% if sort == 'title' %}
+                        <a href="?sort=-title&category={{ category_id }}&status={{ status_id }}&title={{ title }}">
+                            Название
+                        </a>
+                    {% else %}
+                        <a href="?sort=title&category={{ category_id }}&status={{ status_id }}&title={{ title }}">
+                            Название
+                        </a>
+                    {% endif %}
+                </th>
+                <th>
+                    {% if sort == 'start_date' %}
+                        <a href="?sort=-start_date&category={{ category_id }}&status={{ status_id }}&title={{ title }}">
+                            Дата начала
+                        </a>
+                    {% else %}
+                        <a href="?sort=start_date&category={{ category_id }}&status={{ status_id }}&title={{ title }}">
+                            Дата начала
+                        </a>
+                    {% endif %}
+                </th>
+                <th>
+                    {% if sort == 'end_date' %}
+                        <a href="?sort=-end_date&category={{ category_id }}&status={{ status_id }}&title={{ title }}">
+                            Дата конца
+                        </a>
+                    {% else %}
+                        <a href="?sort=end_date&category={{ category_id }}&status={{ status_id }}&title={{ title }}">
+                            Дата конца
+                        </a>
+                    {% endif %}
+                </th>
+                <th>
+                    {% if sort == 'base_price' %}
+                        <a href="?sort=-base_price&category={{ category_id }}&status={{ status_id }}&title={{ title }}">
+                            Стартовая стоимость
+                        </a>
+                    {% else %}
+                        <a href="?sort=base_price&category={{ category_id }}&status={{ status_id }}&title={{ title }}">
+                            Стартовая стоимость
+                        </a>
+                    {% endif %}
+                </th>
+                <th>
+                    {% if sort == 'status' %}
+                        <a href="?sort=-status&category={{ category_id }}&status={{ status_id }}&title={{ title }}">
+                            Статус
+                        </a>
+                    {% else %}
+                        <a href="?sort=status&category={{ category_id }}&status={{ status_id }}&title={{ title }}">
+                            Статус
+                        </a>
+                    {% endif %}
+                </th>
+                <!--th>Предпочтительный</th-->
+            </tr>
+            <!--tr>
+                <th colspan="6">Изображения</th>
+            </tr>
+            <tr>
+                <th colspan="6">Дополнительные данные</th>
+            </tr-->
+            {% for lot in lots %}
+                <tr><td colspan="7"><hr/></td></tr>
+                <tr>
+                    <td class="lot_id">
+                        <a href="{{ lot.src }}" target="_blank">
+                            {{ lot.lot_id | safe }}
+                        </a>
+                    </td>
+                    <td class="lot_category">{{ lot.category.name_ru | safe }}</td>
+                    <td class="lot_title">
+                        <a href="javascript: more({{ lot.id }})">{{ lot.title | safe }}</a>
+                    </td>
+                    <td class="lot_start">{{ lot.start_date | date:"d.m.Y" | safe }}</td>
+                    <td class="lot_end">{{ lot.end_date | date:"d.m.Y" | safe }}</td>
+                    <td class="lot_base_price">{{ lot.base_price | floatformat:"2g" | safe }}</td>
+                    <td class="lot_status">{{ lot.status.name_ru | safe }}</td>
+                    <!--td class="lot_favorite">{{ lot.favorite | safe }}</td-->
+                </tr>
+                <tr class="lot_additional_data" id="lot_additional_data_{{ lot.id }}" style="display: none">
+                    <td colspan="3">
+                        {% for image in lot.images %}
+                            <a href="{{ image.src | safe }}" target="_blank">
+                                <img src="{{ image.thumbnail | safe }}"/>
+                            </a>
+                        {% endfor %}
+                    </td>
+                    <td colspan="4">
+                        {% for item in lot.data %}
+                            <p><b>{{ item.name_ru | safe }} / {{ item.name_kg | safe }}</b> {{ item.value | safe }}</p>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        
+        <div class="pagination">
+            <span class="step-links">
+                {% if lots.has_previous %}
+                    <a href="?page=1&sort={{ sort }}&category={{ category_id }}&status={{ status_id }}&title={{ title }}">&laquo;</a>
+                    <a href="?page={{ lots.previous_page_number }}&sort={{ sort }}&category={{ category_id }}&status={{ status_id }}&title={{ title }}">&lt;</a>
+                {% endif %}
+        
+                <span class="current">
+                    Страница {{ lots.number }} из {{ lots.paginator.num_pages }}.
+                </span>
+        
+                {% if lots.has_next %}
+                    <a href="?page={{ lots.next_page_number }}&sort={{ sort }}&category={{ category_id }}&status={{ status_id }}&title={{ title }}">&gt;</a>
+                    <a href="?page={{ lots.paginator.num_pages }}&sort={{ sort }}&category={{ category_id }}&status={{ status_id }}&title={{ title }}">&raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </body>
+</html>

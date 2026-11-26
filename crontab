@@ -1,0 +1,4 @@
+# m h  dom mon dow   command
+0 9 * * * /root/scanner/venv/bin/python /root/scanner/manage.py scan --full-scan >> /var/log/cron.log 2>&1
+0 0 1 * * cd /root && bash logs_rotate
+# Пустая строка в конце файла обязательна для cron

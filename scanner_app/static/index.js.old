@@ -1,0 +1,13 @@
+/*
+ *
+ */
+ 
+function more(id) {
+    let lot_additional_data = document.querySelector(`#lot_additional_data_${id}`)
+    if(lot_additional_data.style.display == 'none') {
+        lot_additional_data.style.display = 'table-row'
+    }
+    else {
+        lot_additional_data.style.display = 'none'
+    }
+}

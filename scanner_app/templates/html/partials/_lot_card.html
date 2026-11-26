@@ -1,0 +1,111 @@
+<div class="col-md-6 col-lg-4 mb-4">
+  <div class="card h-100">
+    <div class="card-img-top-wrapper">
+        {# Проверяем, есть ли вообще какие-либо объекты изображений для лота #}
+        {% if lot.images.all %} 
+            {# Если изображений больше одного, отображаем навигацию (номера) #}
+            {% if lot.images.count > 1 %}
+                <div class="lot-nav-link-container lot-nav-link-container-{{ lot.id }} mb-2">
+                    {% for image in lot.images.all %}
+                        {# Создаем ссылку на переключение только если у изображения есть src #}
+                        {% if image.src %} 
+                            <a href="#"
+                               class="lot-nav-link"
+                               data-image-id="{{ image.id }}"
+                               data-lot-id="{{ lot.id }}"
+                               style="font-size: 0.85rem; {% if forloop.first %}text-decoration:underline;{% else %}text-decoration:none;{% endif %}">
+                                {{ forloop.counter }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+    
+            {# Отображаем все изображения лота, при этом по умолчанию первое видимо, остальные скрыты #}
+            <div class="lot-image-container-{{ lot.id }}">
+                {% for image in lot.images.all %}
+                    {% if image.src %} {# Если у изображения есть src, показываем его #}
+                        <a href="{{ image.src | safe }}"
+                           target="_blank"
+                           class="lot-image-block"
+                           data-image-id="{{ image.id }}"
+                           style="display: {% if forloop.first %}block{% else %}none{% endif %};">
+                            <img width="100%"
+                                 src="{{ image.thumbnail | safe }}"
+                                 alt="{{ lot.title }}" {# Используем заголовок лота для alt-текста #}
+                                 style="max-height: 180px; object-fit: cover;"
+                                 class="rounded" />
+                        </a>
+                    {% else %}
+                        {# Заглушка для отдельного изображения, если его src пуст #}
+                        <div class="lot-image-block d-flex align-items-center justify-content-center bg-light text-muted"
+                             data-image-id="{{ image.id }}"
+                             style="height: 180px; display: {% if forloop.first %}block{% else %}none{% endif %};">
+                            Нет изображения
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% else %}
+            {# Заглушка, если для лота вообще нет изображений #}
+            <div class="card-img-top d-flex align-items-center justify-content-center bg-light text-muted"
+                style="height: 180px;">
+                Нет изображения
+            </div>
+        {% endif %}
+    </div>
+    <div class="card-body">
+      <h5 class="card-title">{{ lot.title }}</h5>
+      {% if lot.start_date %}
+      <p class="card-text">
+          <i class="ti ti-calendar-event me-2"></i>
+          <strong>Дата начала:</strong> {{ lot.start_date|date:"d b Y" }}
+      </p>
+      {% endif %}
+      {% if lot.end_date %}
+      <p class="card-text">
+          <i class="ti ti-calendar-event me-2"></i>
+          <strong>Дата конца:</strong> {{ lot.end_date|date:"d b Y" }}
+      </p>
+      {% endif %}
+      <p class="card-text">
+        <strong>Цена:</strong> {{ lot.final_display_price }} {{ lot.current_currency_code }}
+        {% if lot.square_value_display %}
+          {# Проверяем, что удельная цена была успешно рассчитана #}
+          {% if lot.price_per_unit is not None and lot.price_per_unit_measure %}
+              <small class="text-muted">
+                  ({{ lot.price_per_unit }} {{ lot.current_currency_code }}{{ lot.price_per_unit_measure }})
+              </small>
+          {% endif %}
+        {% endif %}
+      </p>
+      {% if lot.square_value_display and lot.square_value_display != 'Не указана' %}
+          <p class="card-text"><strong>Площадь:</strong> {{ lot.square_value_display }}</p>
+      {% endif %}
+      <p class="card-text"><strong>Адрес:</strong> {{ lot.address_display }}</p>
+      <ul class="list-unstyled">
+          {% for data_item in lot.display_data_initial %}
+              <li><strong>{{ data_item.name_ru }}:</strong> {{ data_item.value }}</li>
+          {% endfor %}
+      </ul>
+      <div class="lot-details-hidden" style="display: none;">
+        <ul class="list-unstyled">
+          {% for data_item in lot.display_data_hidden %}
+              <li><strong>{{ data_item.name_ru }}:</strong> {{ data_item.value }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <button class="btn btn-primary toggle-lot-details" style="width: 100%" data-show-text="Показать больше" data-hide-text="Показать меньше">Показать больше</button>
+      <div class="d-grid mt-2"> {# Уменьшил mt #}
+          {# Используем URL, подготовленный в views.py #}
+          {% if lot.participate_action_url %}
+              <a href="{{ lot.participate_action_url | safe }}" class="btn btn-sm btn-label-primary" target="_blank">Принять участие</a>
+          {% else %}
+              {# Если URL так и не был сформирован (например, нет app_config.auction_url или действия) #}
+              {# Можно показать кнопку неактивной, с другой надписью, или просто скрыть #}
+              <button class="btn btn-sm btn-label-secondary" disabled>Недоступно</button>
+          {% endif %}
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,5 @@
+{% for lot in page_obj %}
+    {% include 'html/partials/_lot_card.html' with lot=lot %}
+    {% empty %}
+        <p>Нет лотов, соответствующих вашим критериям.</p>
+{% endfor %}
