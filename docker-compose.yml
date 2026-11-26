@@ -15,9 +15,8 @@ services:
       retries: 10
     restart: always
 
-  web:
+web:
     build: .
-    image: auction-web:latest
     container_name: django_web
     command: python3 manage.py runserver 0.0.0.0:8000
     volumes:
@@ -43,18 +42,10 @@ services:
 
   cron:
     build: .
-    image: auction-cron:latest
     container_name: django_cron
     command: /bin/sh /app/entrypoint.cron.sh
     environment:
-      SECRET_KEY: ${SECRET_KEY}
-      DEBUG: ${DEBUG:-1}
-      POSTGRES_DB: ${POSTGRES_DB:-scanner_db}
-      POSTGRES_USER: ${POSTGRES_USER:-scanner_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_HOST: ${POSTGRES_HOST:-db}
-      DOMAIN_NAME: ${DOMAIN_NAME:-an.e7.kg}
-      EMAIL: ${EMAIL}
+      # ваши переменные окружения
     depends_on:
       db:
         condition: service_healthy
