@@ -15,7 +15,7 @@ services:
       retries: 10
     restart: always
 
-web:
+  web:
     build: .
     pull_policy: build
     container_name: django_web
@@ -47,7 +47,15 @@ web:
     container_name: django_cron
     command: /bin/sh /app/entrypoint.cron.sh
     environment:
-      # ваши переменные окружения
+      SECRET_KEY: ${SECRET_KEY}
+      DEBUG: ${DEBUG:-1}
+      POSTGRES_DB: ${POSTGRES_DB:-scanner_db}
+      POSTGRES_USER: ${POSTGRES_USER:-scanner_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: ${POSTGRES_HOST:-db}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      DOMAIN_NAME: ${DOMAIN_NAME:-an.i7.kg}
+      EMAIL: ${EMAIL}
     depends_on:
       db:
         condition: service_healthy
@@ -56,3 +64,4 @@ web:
 volumes:
   postgres_data:
   static_volume:
+  
