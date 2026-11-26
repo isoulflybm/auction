@@ -17,6 +17,7 @@ services:
 
 web:
     build: .
+    pull_policy: build
     container_name: django_web
     command: python3 manage.py runserver 0.0.0.0:8000
     volumes:
@@ -42,6 +43,7 @@ web:
 
   cron:
     build: .
+    pull_policy: build
     container_name: django_cron
     command: /bin/sh /app/entrypoint.cron.sh
     environment:
